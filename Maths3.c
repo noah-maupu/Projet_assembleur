@@ -54,6 +54,21 @@ return ChoixDuNiveau;
 
 }
 
+int verif(int res, int nb_bon_res, int a)
+{
+  if (res==a)
+      {
+        printf("Bonne réponse\n");
+        nb_bon_res+=1;
+      }
+      else 
+      {
+        printf("Mauvaise réponse\n");
+        printf("Le résultat est %d\n", res);
+      }
+      return nb_bon_res;
+}
+
 //float calc_score()
 
 int main()
@@ -86,12 +101,7 @@ int main()
       scanf("%d",&a);
       res=somme(op_1, op_2);
       nb_calc+=1;
-      if (res==a)
-      {
-        nb_bon_res+=1;
-      }
-      printf("res=%d\n", res);
-      printf("a=%d\n", a);
+      nb_bon_res=verif(res, nb_bon_res, a);
     }
 
 //    case 2:
@@ -104,10 +114,7 @@ int main()
       scanf("%d",&a);
       res=difference(op_1, op_2);
       nb_calc+=1;
-      if (res==a)
-      {
-        nb_bon_res+=1;
-      }
+      nb_bon_res=verif(res, nb_bon_res, a);
 
     }
    
@@ -121,12 +128,7 @@ int main()
       scanf("%d",&a);
       res=produit(op_1, op_2);
       nb_calc+=1;
-      if (res==a)
-      {
-        nb_bon_res+=1;
-      }
-      printf("res=%d\n", res);
-      printf("a=%d\n", a);
+      nb_bon_res=verif(res, nb_bon_res, a);
     }
 
     printf("Ton score est de %d/%d\n\n\n", nb_bon_res, nb_calc);
@@ -140,15 +142,15 @@ int main()
   {
     printf("Excellent!\n");
   }
-  else if (score<99 && score>75)
+  else if (score<=99 && score>=75)
   {
     printf("Très Bien!\n");
   }
-  else if (score < 75 && score >50)
+  else if (score < 75 && score >=50)
   {
     printf("Bien!\n");
   }
-  else if (score < 50 && score >25)
+  else if (score < 50 && score >=25)
   {
     printf("Vous pouvez mieux faire!\n");
   }
@@ -160,7 +162,7 @@ return 0;
 }
 
 
-.data
+/*.data
 c1: .asciiz "Vous avez choisi le niveau facile"
 c2: .asciiz "Vous avez choisi le niveau moyen"
 c3: .asciiz "Vous avez choisi le niveau difficile"
@@ -185,5 +187,5 @@ bouble if:
 ori $v0, $zero, 10// exit
 syscall
 
-
+*/
 
