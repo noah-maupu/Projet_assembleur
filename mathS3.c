@@ -23,10 +23,6 @@ int produit(int a, int b)
    return a * b;
 }
 
-double quotient(int a, int b)
-{
-   return a / b;
-}
 
 int rand_pers()
 {
@@ -68,12 +64,12 @@ int main()
     {
       break;
     }
-//switch (N)
-//  {
+  switch (N)
+  {
     int op_1;
     int op_2;
-//    case 1:
-    if (N==1)
+    case 1:
+    
     {
       printf("Vous avez choisi le niveau facile\n");
       op_1=rand_pers(); //random entre 0 et 100 
@@ -89,9 +85,9 @@ int main()
       printf("res=%d\n", res);
       printf("a=%d\n", a);
     }
+    break;
 
-//    case 2:
-    else if (N==2)
+    case 2:
     {
       printf("Vous avez choisi le niveau moyen\n");
       op_1=rand_pers();//random entre 0 et 100
@@ -106,9 +102,9 @@ int main()
       }
 
     }
+    break;
     
-//    case 3:
-    else if (N==3)
+    case 3:
     {
       printf("Vous avez choisi le niveau difficile\n");
       op_1=rand_pers(); //random entre 0 et 10
@@ -124,8 +120,10 @@ int main()
       printf("res=%d\n", res);
       printf("a=%d\n", a);
     }
+    break;
+  }
 
-    printf("Ton score est de %d/%d\n\n\n", nb_bon_res, nb_calc);
+  printf("Ton score est de %d/%d\n\n\n", nb_bon_res, nb_calc);
   }
 
   float nb_calc_sc=nb_calc;

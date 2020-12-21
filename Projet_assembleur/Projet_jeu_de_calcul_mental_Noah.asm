@@ -19,6 +19,8 @@ rt:	.asciiz "\n"
 vrai:	.asciiz "Bonne réponse"
 faux:	.asciiz "Mauvaise réponse"
 text_1:	.asciiz "La bonne réponse est : "
+mess_mauvais_choix:
+	.asciiz "Vous avez un mauvais choix, veuillez faire un choix valide"
 
 
 	.text
@@ -39,24 +41,38 @@ main:
 	ori $v0, $zero, 4
 	syscall
 	
-
+	
 	#Appel de la fonction Choix du niveau	
 	jal FctChoixDuNiveau
 
 	lw $fp, 60($sp)		#FIN
 	lw $t0, 0($sp)		#
 
-	or $a0, $zero, $t0
+	or $a0, $zero, $v0
 	ori $v0, $zero, 1
 	syscall
 	
 	
 	#Appel a la fonction random
-	jal FctRandom
+	#jal FctRandom
 	
-	lw $fp, 60($sp)		#FIN
-	lw $t0, 0($sp)		#
-	lw $t1, 4($sp)		#
+	#lw $fp, 60($sp)		#FIN
+	#lw $t0, 0($sp)		#
+	#lw $t1, 4($sp)		#
+	
+	
+	 
+	
+	#demande à l'utilisateur deux nombres
+	#ori $v0, $zero, 5
+	#syscall
+	#or $t0, $zero, $v0 # sauvegarde du nombre dans $t0
+
+	#ori $v0, $zero, 5
+	#syscall
+	#or $t1, $zero, $v0 # sauvegarde du nombre dans $t1
+	
+	
 	
 	
 	#Appel à la fonction d'addition
@@ -214,9 +230,7 @@ FctChoixDuNiveau:
 	ori $v0, $zero, 5
 	syscall
 	or $t0, $zero, $v0 # sauvegarde du choix dans $t0
-	or $a0, $zero, $t0
-	ori $v0, $zero, 1
-	syscall
+
 	#affiche un retour à la ligne
 	la $a0, rt
 	ori $v0, $zero, 4
@@ -225,9 +239,14 @@ FctChoixDuNiveau:
 	ori $t1, $zero, 1
 	ori $t2, $zero, 2
 	ori $t3, $zero, 3
+mauvais_choix:
 	beq $t0, $t1, choix_1
 	beq $t0, $t2, choix_2
 	beq $t0, $t3, choix_3
+	la $a0, mess_mauvais_choix
+	ori $v0, $zero, 4
+	syscall
+	j mauvais_choix
 choix_1:	
 	la $a0, easy
 	syscall
@@ -247,6 +266,8 @@ suite_choix:
 	lw $fp, 4($sp)		# restitution de $sp
 	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
+	
+	
 	
 FctRandom: #fonction qui génère des nombres aléatoires
 
@@ -279,11 +300,6 @@ FctRandom: #fonction qui génère des nombres aléatoires
 	lw $fp, 4($sp)		# restitution de $sp
 	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
-	
-	
-	
-
-	
 	
 
 	
