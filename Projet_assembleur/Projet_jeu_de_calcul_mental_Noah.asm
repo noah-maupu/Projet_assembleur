@@ -303,3 +303,75 @@ FctRandom: #fonction qui génère des nombres aléatoires
 	
 
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+Suite:	ori $v0, $zero, 10
+	syscall
+
+
+
+
+
+
+	#On vérifie son résultat	
+	beq $t0, $t3, Goodsdfg
+	j Badsdfgs
+Goodsdfdsfds:	
+	la $a0, vrai
+	ori, $v0, $zero, 4
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	addi $t5, $t5, 1
+	beq $t5, $t4, suite_Niveaudfghd
+	j fordfhhsfg
+
+Badsdfsdf:
+	la $a0, faux
+	ori $v0, $zero, 4
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	
+	la $a0, text_1
+	ori $v0, $zero, 4
+	syscall
+	ori $v0, $zero, 1
+	or $a0, $zero, $t3
+	syscall
+	addi $t5, $t5, 1
+	beq $t5, $t4, suite_Niveaudfghd
+	j fordfgh
+	
+suite_Niveaufsdfds:
+	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 32	# déplilement
+	jr $ra	
+
