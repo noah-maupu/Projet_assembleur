@@ -1,6 +1,7 @@
 	.data
 intro:	.asciiz "Bienvenue sur le jeu de calcul mental !\n"
-easy:	.asciiz "Vous avez choisi le niveau facile"
+choice: .asciiz "CHOIX DU NIVEAU"
+easy:	.asciiz  "Vous avez choisi le niveau facile"
 moyen:	.asciiz "Vous avez choisi le niveau moyen"
 hard:	.asciiz "Vous avez choisi le niveau difficile"
 score:	.asciiz "Ton score est de"
@@ -23,6 +24,7 @@ main:
 	addiu $sp, $sp, -64
 	sw $fp, 60($sp)
 	addiu $fp, $sp, 64
+	
 	#affiche un retour à la ligne
 	la $a0, rt
 	ori $v0, $zero, 4
@@ -34,17 +36,33 @@ main:
 	ori $v0, $zero, 4
 	syscall
 	
+	#Appel a la fonction random
+	or $a0, $zero, $t0	#OUV sauvegarde du nombre dans $t0
+	or $a1, $zero, $t1	#
+	sw $a0, 0($sp)		# sauvegarde du nombre dans $t0
+	sw $a1, 4($sp)		#sauvegarde du nombre dans $t1
+	jal FctRandom
+	
+	lw $fp, 60($sp)		#FIN
+	lw $t0, 0($sp)		#
+	lw $t1, 4($sp)		#
+	
+	
+	 
+	
 	#demande à l'utilisateur deux nombres
-	ori $v0, $zero, 5
-	syscall
-	or $t0, $zero, $v0 # sauvegarde du nombre dans $t0
+	#ori $v0, $zero, 5
+	#syscall
+	#or $t0, $zero, $v0 # sauvegarde du nombre dans $t0
 
-	ori $v0, $zero, 5
-	syscall
-	or $t1, $zero, $v0 # sauvegarde du nombre dans $t1
+	#ori $v0, $zero, 5
+	#syscall
+	#or $t1, $zero, $v0 # sauvegarde du nombre dans $t1
 	
 	
-	#Appelle à la fonction d'addition
+	
+	
+	#Appel à la fonction d'addition
 	or $a0, $zero, $t0	#OUV
 	or $a1, $zero, $t1	#
 	sw $a0, 0($sp)		#
@@ -138,16 +156,62 @@ Fctsoustraction:
 	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
 	
-Fctsoustraction:
+Fctmultiplication:
 	addiu $sp, $sp, -8
 	sw $ra, 0($sp)	
 	sw $fp, 4($sp)
 	addiu $fp, $sp, 8
 	
-	mult $v0, $a0, $a1
+	mult $t0,$t1
 	
 	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
 	lw $fp, 4($sp)		# restitution de $sp
 	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
+	
+FctChoixDuNiveau:
+     	la $t0, choice # on récupeère l'adresse de ChoixDuNiveau
+     	lw $t1, 0($t0)
+#affichage du menu des choix
+	la $a0, choice
+	ori $v0, $zero, 4
+	syscall
+	
+#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	
+	la $a0, easy
+	ori $v0, $zero, 4
+	syscall
+	
+	la $a0, moyen
+	ori $v0, $zero, 4
+	syscall
+	
+	la $a0, hard
+	ori $v0, $zero, 4
+	syscall
+
+#demande à l'utilisateur de choisir un niveau
+	ori $v0, $zero, 8
+	syscall
+	or $t2, $zero, $v0 # sauvegarde du choix dans $t2
+	
+#on affiche le choix de l'utilisateur
+	ori $v0, $zero, 4
+	syscall
+	
+FctRandom: #fonction qui génère des nombres aléatoires
+
+	li $v0, 42  # 42 est l'appel système pour générer un random int
+	li $a1, 100 # $a1 stocke la limite superieure
+	syscall     # $a0 stocke le nombre aléatoire
+
+	li $v0,1   # 1 est l'appel système pour afficher le int aléatoire  
+	syscall    
+
+	
+
 	
