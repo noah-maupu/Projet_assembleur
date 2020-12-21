@@ -36,15 +36,7 @@ main:
 	ori $v0, $zero, 4
 	syscall
 	
-	#Appel de la fonction Choix du niveau
-	or $a0, $zero, $t0	#OUV 	
-	sw $a0, 0($sp)		# sauvegarde du choix dans $t0
-	jal FctChoixDuNiveau
-	
-	lw $fp, 60($sp)		#FIN
-	lw $t0, 0($sp)		#
-	
-	
+
 	#Appel a la fonction random
 	or $a0, $zero, $t0	#OUV sauvegarde du nombre dans $t0
 	or $a1, $zero, $t1	#
@@ -178,49 +170,44 @@ Fctmultiplication:
 	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
 	
-FctChoixDuNiveau:
-     	la $t0, choice # on récupeère l'adresse de ChoixDuNiveau
-     	lw $t1, 0($t0)
-#affichage du menu des choix
-	la $a0, choice
-	ori $v0, $zero, 4
-	syscall
-	
-#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	
-	la $a0, easy
-	ori $v0, $zero, 4
-	syscall
-	
-	la $a0, moyen
-	ori $v0, $zero, 4
-	syscall
-	
-	la $a0, hard
-	ori $v0, $zero, 4
-	syscall
 
-#demande à l'utilisateur de choisir un niveau
-	ori $v0, $zero, 8
-	syscall
-	or $t2, $zero, $v0 # sauvegarde du choix dans $t2
-	
-#on affiche le choix de l'utilisateur
-	ori $v0, $zero, 4
-	syscall
 	
 FctRandom: #fonction qui génère des nombres aléatoires
+
+	addiu $sp, $sp, -8  #Prologue 
+	sw $ra, 0($sp)	
+	sw $fp, 4($sp)
+	addiu $fp, $sp, 8
 
 	li $v0, 42  # 42 est l'appel système pour générer un random int
 	li $a1, 100 # $a1 stocke la limite superieure
 	syscall     # $a0 stocke le nombre aléatoire
 
-	li $v0,1   # 1 est l'appel système pour afficher le int aléatoire  
-	syscall    
+	or $t0, $zero, $a0
+	syscall
+	or $t1, $zero, $a0
+	ori $v0, $zero, 1
+	or $a0, $zero, $t0
+	syscall
+	
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	
+	ori $v0, $zero, 1
+	or $a0,$zero, $t1
+	syscall
+	
+	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 8	# déplilement
+	jr $ra	
+	
+	
+	
 
+	
 	
 
 	
