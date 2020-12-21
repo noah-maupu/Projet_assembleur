@@ -36,6 +36,15 @@ main:
 	ori $v0, $zero, 4
 	syscall
 	
+	#Appel de la fonction Choix du niveau
+	or $a0, $zero, $t0	#OUV 	
+	sw $a0, 0($sp)		# sauvegarde du choix dans $t0
+	jal FctChoixDuNiveau
+	
+	lw $fp, 60($sp)		#FIN
+	lw $t0, 0($sp)		#
+	
+	
 	#Appel a la fonction random
 	or $a0, $zero, $t0	#OUV sauvegarde du nombre dans $t0
 	or $a1, $zero, $t1	#
