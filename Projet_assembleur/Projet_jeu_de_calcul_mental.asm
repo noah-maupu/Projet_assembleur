@@ -87,11 +87,13 @@ while:
 	#Appel a la fonction Niveau
 	or $a0, $zero, $t0
 	or $a1, $zero, $t4
+	or $a2, $zero, $t6
+	or $a3, $zero, $t7
 	jal FctNiveau
 	lw $fp, 60($sp)		#FIN
 	lw $t0, 0($sp)		#
-	
-	
+	or $t6, $zero, $v0
+	or $t7, $zero, $v1
 	
 suite:	
 	#Appel de la fonction Choix du niveau	
@@ -106,11 +108,11 @@ suite:
 
 fin:	
 	# calcule du résultat
-	or $a0, $zero, $t1
-	or $a1, $zero, $t2
+	or $a0, $zero, $t6
+	or $a1, $zero, $t7
 	jal Fct_calcule_score
 	lw $fp, 60($sp)		#FIN
-	or $t0, $zero, $v0	# $t0 contient le choix de l'utilisateur
+	or $t0, $zero, $v0	# $t0 contient le resultat final
 	
 	or $a0, $zero, $t0
 	jal Ftc_affiche_score
@@ -274,16 +276,18 @@ FctRandom: #fonction qui génère des nombres aléatoires
 	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
 	
-	
+
+		
 FctNiveau:
 	addiu $sp, $sp, -32	#PRO
 	sw $fp, 4($sp)		#
 	sw $ra, 0($sp)		#
 	addiu $fp, $sp, 32	#
-	or $t0, $zero, $a0
-	or $t1, $zero, $a1
-	addi $a2, $zero, 0	
-	
+	or $t0, $zero, $a0	#
+	or $t1, $zero, $a1	#
+	or $t6, $zero, $a2	#
+	or $t7, $zero, $a3	#
+	addi $a2, $zero, 0		
 for_Niveau:
 	#Appel a la fonction random		random pour le choix de l'opération
 	ori $a0, $zero, 3	# plafond du random
@@ -361,7 +365,6 @@ Good_addition_facile:
 	syscall
 	addi, $t7, $t7, 1
 	j suite_Niveau
-
 Bad_addition_facile:
 	la $a0, faux
 	ori $v0, $zero, 4
@@ -436,7 +439,6 @@ Good_soustraction_facile:
 	syscall
 	addi, $t7, $t7, 1
 	j suite_Niveau
-
 Bad_soustraction_facile:
 	la $a0, faux
 	ori $v0, $zero, 4
@@ -452,7 +454,7 @@ Bad_soustraction_facile:
 	ori $v0, $zero, 1
 	or $a0, $zero, $t4
 	syscall
-	j suite_Niveau
+	j suite_Niveau	
 	
 multiplication_facile:
 	#Appel a la fonction random
@@ -512,7 +514,6 @@ Good_multiplication_facile:
 	syscall
 	addi, $t7, $t7, 1
 	j suite_Niveau
-
 Bad_multiplication_facile:
 	la $a0, faux
 	ori $v0, $zero, 4
@@ -535,6 +536,7 @@ moyen_Niveau:
 	beq $t2, $zero, addition_moyen
 	beq $t2, $t3, soustraction_moyen
 	beq $t2, $t4, multiplication_moyen
+	
 addition_moyen:
 	#Appel a la fonction random
 	ori $a0, $zero, 101	# plafond du random
@@ -594,7 +596,6 @@ Good_addition_moyen:
 	syscall
 	addi, $t7, $t7, 1
 	j suite_Niveau
-
 Bad_addition_moyen:
 	la $a0, faux
 	ori $v0, $zero, 4
@@ -611,6 +612,7 @@ Bad_addition_moyen:
 	or $a0, $zero, $t4
 	syscall
 	j suite_Niveau
+	
 soustraction_moyen:
 	#Appel a la fonction random
 	ori $a0, $zero, 101	# plafond du random
@@ -668,7 +670,6 @@ Good_soustraction_moyen:
 	syscall
 	addi, $t7, $t7, 1
 	j suite_Niveau
-
 Bad_soustraction_moyen:
 	la $a0, faux
 	ori $v0, $zero, 4
@@ -685,6 +686,7 @@ Bad_soustraction_moyen:
 	or $a0, $zero, $t4
 	syscall
 	j suite_Niveau
+	
 multiplication_moyen:
 	#Appel a la fonction random
 	ori $a0, $zero, 11	# plafond du random
@@ -801,8 +803,7 @@ for_difficile:
 	ori $t3, $zero, 2
 	beq $t2, $zero, affichage_addition_difficile
 	beq $t2, $t5, affichage_soustraction_difficile
-	beq $t2, $t3, affichage_multiplication_difficile
-	
+	beq $t2, $t3, affichage_multiplication_difficile	
 	
 affichage_addition_difficile:
 	# printf(" + ")
@@ -819,7 +820,6 @@ affichage_multiplication_difficile:
 	la $a0, fois
 	ori $v0, $zero, 4
 	syscall
-
 
 suite_affichage:	
 	#Appel a la fonction random
@@ -879,7 +879,6 @@ multiplication_difficile:
 suite_operation_boucle:
 	addi $s0, $s0, 1
 	j for_difficile
-	
 	
 suite_operation:
 	#affiche un retour à la ligne
@@ -958,7 +957,9 @@ suite_Niveau:
 	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
 	addiu $sp, $sp, 32	# déplilement
 	jr $ra	
+
 	
+			
 Fct_calcule_score:
 	# $a0 contient le nombre de calcul
 	# $a1 contient le nombre de calcul correcte
@@ -1006,8 +1007,6 @@ Fct_affiche_score:
 	sw $ra, 0($sp)	
 	sw $fp, 4($sp)
 	addiu $fp, $sp, 8
-	
-
 
 	or $t0, $zero, $a0
 	ori $t1, $zero, 99
