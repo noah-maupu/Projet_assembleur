@@ -3,7 +3,7 @@ intro:	.asciiz "Bienvenue sur le jeu de calcul mental !\n"
 choice: .asciiz "CHOIX DU NIVEAU"
 easy:	.asciiz  "Vous avez choisi le niveau facile"
 moyen:	.asciiz "Vous avez choisi le niveau moyen"
-hard:	.asciiz "Vous avez choisi le niveau difficile"
+hard:	.asciiz "Vous avez choisi le niveau difficile\nVous allez faire un calcule avec un nombre aléatoire d'opération\nVous aurez un temps limité de 5 secondes entre chaque opération\n"
 sortie:	.asciiz "Vous allez sortir du programme"
 niv:	.asciiz "\nTapez 1 pour le niveau facile\nTapez 2 pour le niveau moyen\nTapez 3 pour le niveau difficile\nTapez 4 pour sortir du programme et afficher votre résultat\n"
 score:	.asciiz "\nTon score est de "
@@ -25,7 +25,7 @@ text_1:	.asciiz "La bonne réponse est : "
 mess_mauvais_choix:
 	.asciiz "Vous avez fait un mauvais choix, veuillez faire un choix valide"
 mess_nb_calc:
-	.asciiz "Indiquer le nombre d'opération que vous voulez faire"
+	.asciiz "Indiquer le nombre de calcul que vous voulez faire"
 mess_affiche_score:
 	.asciiz "Ton score final est de "
 parenthese_ouvrante:
@@ -34,9 +34,11 @@ parenthese_fermante:
 	.asciiz ")"
 clear:	.asciiz "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
 press_enter:
-	.asciiz "Appuyer sur la touche Entrée pour voir la suite du calcule"
+	.asciiz "Appuyer sur la touche Entrée pour voir la suite du calcul\n"
 tapez_resultat:
-	.asciiz "Tapez votre résulat"
+	.asciiz "Tapez votre résulat:\n"
+pourcentage:
+	.asciiz "%."
 
 	.text
 main:	
@@ -58,16 +60,14 @@ main:
 	
 	#Appel de la fonction Choix du niveau	
 	jal FctChoixDuNiveau
-
 	lw $fp, 60($sp)		#FIN
 	lw $t0, 0($sp)		#
-
 	or $t0, $zero, $v0		# $t0 contient le choix de l'utilisateur
-	ori $t1, $zero, 4
+	ori $t1, $zero, 4		# si le choix est 4, on sort du programme
 	beq $t0, $t1, fin
 while:	
 
-	#demande à l'utilisateur le nombre d'opération il veut faut
+	#demande à l'utilisateur le nombre d'opération il veut faire
 	la $a0, mess_nb_calc
 	ori $v0, $zero, 4
 	syscall
@@ -78,215 +78,15 @@ while:
 	ori $v0, $zero, 5
 	syscall
 	or $t4, $zero, $v0		# $t4 contient le nombre d'opération que l'utilisateur va effectuer
-	#affiche un retour à la ligne
+	#on "efface" le terminal
 	la $a0, clear
 	ori $v0, $zero, 4
 	syscall 
 	
-	ori, $t5, $zero, 0		# $t5 = compteur de la boucle for
-	#Appel a la fonction Niveau
-	or $a0, $zero, $t0
-	or $a1, $zero, $t4
-	or $a2, $zero, $t6
-	or $a3, $zero, $t7
-	jal FctNiveau
-	lw $fp, 60($sp)		#FIN
-	lw $t0, 0($sp)		#
-	or $t6, $zero, $v0
-	or $t7, $zero, $v1
-	
-suite:	
-	#Appel de la fonction Choix du niveau	
-	jal FctChoixDuNiveau
 
-	lw $fp, 60($sp)		#FIN
-	lw $t0, 0($sp)		#
-	or $t0, $zero, $v0		# $t0 contient le choix de l'utilisateur
-	
-	ori $t5, $zero, 4
-	bne $t0, $t5, while
-
-fin:	
-	# calcule du résultat
-	or $a0, $zero, $t6
-	or $a1, $zero, $t7
-	jal Fct_calcule_score
-	lw $fp, 60($sp)		#FIN
-	or $t0, $zero, $v0	# $t0 contient le resultat final
-	
-	or $a0, $zero, $t0
-	jal Fct_affiche_score
-	lw $fp, 60($sp)
-	
-	
-	
-	ori $v0, $zero, 10
-	syscall
-	
-	
-	
-
-
-Fctaddition:
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
-	
-	add $v0, $a0, $a1
-	
-	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
-	lw $fp, 4($sp)		# restitution de $sp
-	addiu $sp, $sp, 8	# déplilement
-	jr $ra	
-	
-	
-Fctsoustraction:
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
-	
-	sub $v0, $a0, $a1
-	
-	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
-	lw $fp, 4($sp)		# restitution de $sp
-	addiu $sp, $sp, 8	# déplilement
-	jr $ra	
-
-		
-Fctmultiplication:
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
-	
-	mult $a0, $a1
-	
-	mflo  $v0
-	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
-	lw $fp, 4($sp)		# restitution de $sp
-	addiu $sp, $sp, 8	# déplilement
-	jr $ra		
-	
-	
-FctChoixDuNiveau:
-	addiu $sp, $sp, -8	#PRO
-	sw $ra, 0($sp)		#
-	sw $fp, 4($sp)		#
-	addiu $fp, $sp, 8	#
-	
-	#affichage du menu des choix
-	la $a0, choice
-	ori $v0, $zero, 4
-	syscall
-	
-	la $a0, niv
-	ori $v0, $zero, 4
-	syscall
-
-	#demande à l'utilisateur de choisir un niveau
-	ori $v0, $zero, 5
-	syscall
-	or $t0, $zero, $v0 # sauvegarde du choix dans $t0
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	
-	ori $t1, $zero, 1
-	ori $t2, $zero, 2
-	ori $t3, $zero, 3
-	ori $t4, $zero, 4
-mauvais_choix:
-	beq $t0, $t1, choix_1
-	beq $t0, $t2, choix_2
-	beq $t0, $t3, choix_3
-	beq $t0, $t4, choix_4
-	la $a0, mess_mauvais_choix
-	ori $v0, $zero, 4
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	ori $v0, $zero, 5
-	syscall
-	or $t0, $zero, $v0 # sauvegarde du choix dans $t0
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	j mauvais_choix
-choix_1:	
-	la $a0, easy
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	j suite_choix
-choix_2:	
-	la $a0, moyen
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	j suite_choix
-choix_3:
-	la $a0, hard
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	j suite_choix
-choix_4:
-	la $a0, sortie
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
-	j suite_choix
-
-suite_choix:
-	or $v0, $zero, $t0
-	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
-	lw $fp, 4($sp)		# restitution de $sp
-	addiu $sp, $sp, 8	# déplilement
-	jr $ra	
-
-
-FctRandom: #fonction qui génère des nombres aléatoires
-
-	addiu $sp, $sp, -8  	#Prologue 
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
-
-	li $v0, 42 		# 42 est l'appel système pour générer un random int
-	or $a1, $zero, $a0		# $a1 stocke la limite superieure
-	syscall     		# $a0 stocke le nombre aléatoire
-	or $v0, $zero, $a0
-	
-	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
-	lw $fp, 4($sp)		# restitution de $sp
-	addiu $sp, $sp, 8	# déplilement
-	jr $ra	
-	
-
-		
-FctNiveau:
-	addiu $sp, $sp, -32	#PRO
-	sw $fp, 4($sp)		#
-	sw $ra, 0($sp)		#
-	addiu $fp, $sp, 32	#
-	or $t0, $zero, $a0	#
-	or $t1, $zero, $a1	#
-	or $t6, $zero, $a2	# nb de calcul bon
-	or $t7, $zero, $a3	# nb de calcul
+	or $t1, $zero, $t4
+	ori $t6, $zero, 0	# nb de calcul bon
+	ori $t7, $zero, 0	# nb de calcul
 	addi $a2, $zero, 0		
 for_Niveau:
 	#Appel a la fonction random		random pour le choix de l'opération
@@ -770,22 +570,22 @@ difficile_Niveau:
 	ori $v0, $zero, 4
 	syscall
 	#Appel a la fonction random
-	ori $a0, $zero, 13	# plafond du random
+	ori $a0, $zero, 6	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t4, $zero, $v0	# $t8 contient un opérande
+	or $t4, $zero, $v0	# $t4 contient un opérande
 	#on affiche le nombre
 	or $a0, $zero, $t4
 	ori $v0, $zero, 1
 	syscall
 	
-	#random pour connaitre le nombre d'opérande
-while_nb_operande:
+#random pour connaitre le nombre d'opérande
+while_nb_operande: 		#choix d'un nombre aléatoire entre 5 et 10
 	#Appel a la fonction random
 	ori $a0, $zero, 11	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $s1, $zero, $v0	# $t8 contient un opérande
+	or $s1, $zero, $v0	# $s1 contient le nombre d'opération
 	
 	ori $t5, $zero, 5
 	slt $t3, $s1, $t5
@@ -823,7 +623,7 @@ affichage_multiplication_difficile:
 
 suite_affichage:	
 	#Appel a la fonction random
-	ori $a0, $zero, 12	# plafond du random
+	ori $a0, $zero, 6	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
 	or $t9, $zero, $v0	# $t9 contient un opérande
@@ -836,15 +636,23 @@ suite_affichage:
 	ori $v0, $zero, 4
 	syscall 
 	syscall
+	
+	ori $v0, $zero, 32
+	ori $a0, $zero, 5000
+	syscall
 	#"pressez enter pour voir la suite"
-	la $a0, press_enter
-	ori $v0, $zero, 4
-	syscall
-	ori $v0, $zero, 8
-	syscall
+	#la $a0, press_enter
+	#ori $v0, $zero, 4
+	#syscall
+	#ori $v0, $zero, 8
+	#syscall
+	
 	#On efface le terminal
 	la $a0, clear
 	ori $v0, $zero, 4
+	syscall
+	ori $v0, $zero, 32
+	ori $a0, $zero, 100
 	syscall
 	beq $t2, $zero, addition_difficile
 	beq $t2, $t5, soustraction_difficile
@@ -881,6 +689,8 @@ suite_operation_boucle:
 	j for_difficile
 	
 suite_operation:
+	#on remet le compteur $s0 à 0
+	ori $s0, $zero, 0
 	#affiche un retour à la ligne
 	la $a0, clear
 	ori $v0, $zero, 4
@@ -953,10 +763,197 @@ suite_Niveau:
 	bne $a2, $t1, for_Niveau
 	or $v0, $zero, $t6
 	or $v1, $zero, $t7
-	lw $fp, 4($sp)		# restitution de $sp
+
+	
+suite:	
+	#Appel de la fonction Choix du niveau	
+
+	jal FctChoixDuNiveau
+
+	lw $fp, 60($sp)		#FIN
+	lw $t0, 0($sp)		#
+	or $t0, $zero, $v0		# $t0 contient le choix de l'utilisateur
+	
+	ori $t5, $zero, 4
+	bne $t0, $t5, while
+
+fin:	
+	# calcule du résultat
+	or $a0, $zero, $t6
+	or $a1, $zero, $t7
+	jal Fct_calcule_score
+	lw $fp, 60($sp)		#FIN
+	or $t0, $zero, $v0	# $t0 contient le resultat final
+	
+	or $a0, $zero, $t0
+	jal Fct_affiche_score
+	lw $fp, 60($sp)
+	
+	
+	
+	ori $v0, $zero, 10
+	syscall
+	
+	
+	
+
+
+
+
+
+
+
+Fctaddition:
+	addiu $sp, $sp, -8
+	sw $ra, 0($sp)	
+	sw $fp, 4($sp)
+	addiu $fp, $sp, 8
+	
+	add $v0, $a0, $a1
+	
 	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
-	addiu $sp, $sp, 32	# déplilement
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 8	# déplilement
 	jr $ra	
+	
+	
+Fctsoustraction:
+	addiu $sp, $sp, -8
+	sw $ra, 0($sp)	
+	sw $fp, 4($sp)
+	addiu $fp, $sp, 8
+	
+	sub $v0, $a0, $a1
+	
+	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 8	# déplilement
+	jr $ra	
+
+		
+Fctmultiplication:
+	addiu $sp, $sp, -8
+	sw $ra, 0($sp)	
+	sw $fp, 4($sp)
+	addiu $fp, $sp, 8
+	
+	mult $a0, $a1
+	
+	mflo  $v0
+	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 8	# déplilement
+	jr $ra		
+	
+	
+FctChoixDuNiveau:
+	addiu $sp, $sp, -8	#PRO
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#
+	
+	#affichage du menu des choix
+	la $a0, choice
+	ori $v0, $zero, 4
+	syscall
+	
+	la $a0, niv
+	ori $v0, $zero, 4
+	syscall
+
+	#demande à l'utilisateur de choisir un niveau
+	ori $v0, $zero, 5
+	syscall
+	or $t0, $zero, $v0 # sauvegarde du choix dans $t0
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	
+	ori $t1, $zero, 1
+	ori $t2, $zero, 2
+	ori $t3, $zero, 3
+	ori $t4, $zero, 4
+mauvais_choix:
+	beq $t0, $t1, choix_1
+	beq $t0, $t2, choix_2
+	beq $t0, $t3, choix_3
+	beq $t0, $t4, choix_4
+	la $a0, mess_mauvais_choix
+	ori $v0, $zero, 4
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	ori $v0, $zero, 5
+	syscall
+	or $t0, $zero, $v0 # sauvegarde du choix dans $t0
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	j mauvais_choix
+choix_1:	
+	la $a0, easy
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	j suite_choix
+choix_2:	
+	la $a0, moyen
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	j suite_choix
+choix_3:
+	la $a0, hard
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	j suite_choix
+choix_4:
+	la $a0, sortie
+	syscall
+	#affiche un retour à la ligne
+	la $a0, rt
+	ori $v0, $zero, 4
+	syscall
+	j suite_choix
+
+suite_choix:
+	or $v0, $zero, $t0
+	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 8	# déplilement
+	jr $ra	
+
+
+FctRandom: #fonction qui génère des nombres aléatoires
+
+	addiu $sp, $sp, -8  	#Prologue 
+	sw $ra, 0($sp)	
+	sw $fp, 4($sp)
+	addiu $fp, $sp, 8
+
+	li $v0, 42 		# 42 est l'appel système pour générer un random int
+	or $a1, $zero, $a0		# $a1 stocke la limite superieure
+	syscall     		# $a0 stocke le nombre aléatoire
+	or $v0, $zero, $a0
+	
+	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
+	lw $fp, 4($sp)		# restitution de $sp
+	addiu $sp, $sp, 8	# déplilement
+	jr $ra	
+	
+
+		
 
 	
 			
@@ -988,6 +985,9 @@ Fct_calcule_score:
 	or $a0, $zero, $t0
 	ori $v0, $zero, 1
 	syscall
+	la $a0, pourcentage
+	ori $v0, $zero, 4
+	syscall
 	#affiche un retour à la ligne
 	la $a0, rt
 	ori $v0, $zero, 4
@@ -1008,32 +1008,31 @@ Fct_affiche_score:
 	sw $fp, 4($sp)
 	addiu $fp, $sp, 8
 
-	or $t0, $zero, $a0
 	ori $t1, $zero, 99
-	slt $t0, $t1, $a1
+	slt $t0, $t1, $a0
 	bne $t0, $zero, affiche_score_com_1
 	ori $t2, $zero, 75
-	slt $t0, $a1, $t1
+	slt $t0, $a0, $t1
 	bne $t0, $zero, affiche_score_com_2_test
 test_1:	
 	ori $t1, $zero, 50
-	slt $t0, $a1, $t2
+	slt $t0, $a0, $t2
 	bne $t0, $zero, affiche_score_com_3_test
 test_2:
 	ori $t2, $zero, 25
-	slt $t0, $a1, $t1
+	slt $t0, $a0, $t1
 	bne $t0, $zero, affiche_score_com_4_test
 
 affiche_score_com_2_test:	# Pour mettre une deuxième condition
-	slt $t0, $t2, $a1
+	slt $t0, $t2, $a0
 	bne $t0, $zero, affiche_score_com_2
 	j test_1
 affiche_score_com_3_test:
-	slt $t0, $t1, $a1
+	slt $t0, $t1, $a0
 	bne $t0, $zero, affiche_score_com_3
 	j test_2
 affiche_score_com_4_test:
-	slt $t0, $t2, $a1
+	slt $t0, $t2, $a0
 	bne $t0, $zero, affiche_score_com_4
 	j affiche_score_com_5
 affiche_score_com_1:
