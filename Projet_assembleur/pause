@@ -1,0 +1,55 @@
+.data
+toWrite: .asciiz "ici on ecrit le texte quon veut sauvegarder "
+fileName: .asciiz "mettre le chemin du fichier quon a creer"
+fileWords: .space 1024
+
+.text
+	.globl main
+	
+main:
+	#Ouvrir un fichier POUR le LIRE 
+	
+	ori $v0, $zero,13          # open_file syscall code = 13
+    	la $a0,fileName     	# get the file name
+    	li $a1,0           	# file flag = read (0) ou write(1)
+    	syscall
+    	move $s0,$v0        	# save the file descriptor. $s0 = file
+	
+	#lire le fichier 
+	li $v0, 14		# read_file syscall code = 14
+	move $a0,$s0		# file descriptor
+	la $a1,fileWords  	# The buffer that holds the string of the WHOLE file
+	la $a2,1024		# hardcoded buffer length
+	syscall
+	
+	# copier ce quil ya dasn le fichier 
+	ori $v0,$zero, 4		# read_string syscall code = 4
+	la $a0,fileWords
+	syscall
+	
+	#fermer le fichier 
+    	li $v0, 16         		# close_file syscall code
+    	move $a0,$s0      		# file descriptor to close
+    	syscall
+    	
+    	# Pour ecrire dans le fichier  Sauvegarder les données du jeu du joueur ( LE SCORE ACTUEL DU JOUR ET LE NOMBRE DE PARTIES FAITES )
+    	
+    	#ouvrir fichier 
+    	ori $v0, $zero, 13           	# open_file syscall code = 13
+    	la $a0,fileName     	# get the file name
+    	li $a1,1           	# file flag = write (1)
+    	syscall
+    	move $s1,$v0        	# save the file descriptor. $s0 = file
+    	
+    	#ecrire dans le fichier 
+    	ori $v0, $zero,15		# write_file syscall code = 15
+    	move $a0,$s1		# file descriptor
+    	la $a1,toWrite		# the string that will be written
+    	la $a2,21		# length of the toWrite string
+    	syscall
+    	
+	#MUST CLOSE FILE IN ORDER TO UPDATE THE FILE
+    	ori $v0, $zero,16         		# close_file syscall code
+    	move $a0,$s1      		# file descriptor to close
+    	syscall
+
