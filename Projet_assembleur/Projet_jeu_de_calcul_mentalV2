@@ -1,10 +1,10 @@
 	.data
 intro:	.asciiz "Bienvenue sur le jeu de calcul mental !\n"
 choice: .asciiz "CHOIX DU NIVEAU"
-easy:	.asciiz  "Vous avez choisi le niveau facile"
-moyen:	.asciiz "Vous avez choisi le niveau moyen"
+easy:	.asciiz  "Vous avez choisi le niveau facile\n"
+moyen:	.asciiz "Vous avez choisi le niveau moyen\n"
 hard:	.asciiz "Vous avez choisi le niveau difficile\nVous allez faire un calcule avec un nombre aléatoire d'opération\nVous aurez un temps limité de 5 secondes entre chaque opération\n"
-sortie:	.asciiz "Vous allez sortir du programme"
+sortie:	.asciiz "Vous allez sortir du programme\n"
 niv:	.asciiz "\nTapez 1 pour le niveau facile\nTapez 2 pour le niveau moyen\nTapez 3 pour le niveau difficile\nTapez 4 pour sortir du programme et afficher votre résultat\n"
 score:	.asciiz "\nTon score est de "
 score_f:.asciiz "Ton score final est de "
@@ -25,7 +25,7 @@ text_1:	.asciiz "La bonne réponse est : "
 mess_mauvais_choix:
 	.asciiz "Vous avez fait un mauvais choix, veuillez faire un choix valide"
 mess_nb_calc:
-	.asciiz "Indiquer le nombre de calcul que vous voulez faire"
+	.asciiz "Indiquer le nombre de calcul que vous voulez faire\n"
 mess_affiche_score:
 	.asciiz "Ton score final est de "
 parenthese_ouvrante:
@@ -46,18 +46,14 @@ main:
 	addiu $sp, $sp, -64
 	sw $fp, 60($sp)
 	addiu $fp, $sp, 64
-	
 	#affiche un retour à la ligne
 	la $a0, rt
 	ori $v0, $zero, 4
 	syscall
-	
-	
 	#affichage du message d'intro
 	la $a0, intro
 	ori $v0, $zero, 4
 	syscall
-	
 	#Appel de la fonction Choix du niveau	
 	jal FctChoixDuNiveau
 	lw $fp, 60($sp)		#FIN
@@ -65,60 +61,56 @@ main:
 	or $t0, $zero, $v0		# $t0 contient le choix de l'utilisateur
 	ori $t1, $zero, 4		# si le choix est 4, on sort du programme
 	beq $t0, $t1, fin
+	
+	ori $t6, $zero, 0	#nombre de calcul
+	ori $t7, $zero, 0	#nombre de calcul bon
 while:	
-
 	#demande à l'utilisateur le nombre d'opération il veut faire
 	la $a0, mess_nb_calc
 	ori $v0, $zero, 4
 	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
 	ori $v0, $zero, 5
 	syscall
-	or $t4, $zero, $v0		# $t4 contient le nombre d'opération que l'utilisateur va effectuer
+	or $t4, $zero, $v0		
 	#on "efface" le terminal
 	la $a0, clear
 	ori $v0, $zero, 4
 	syscall 
-	
 
-	or $t1, $zero, $t4
-	ori $t6, $zero, 0	# nb de calcul bon
-	ori $t7, $zero, 0	# nb de calcul
-	addi $a2, $zero, 0		
+	or $t1, $zero, $t4	# $t1 contient le nombre d'opération que l'utilisateur va effectuer
+	addi $a2, $zero, 0	#compteur de la boucle for_Niveau
 for_Niveau:
-	#Appel a la fonction random		random pour le choix de l'opération
+	#Appel a la fonction random pour le choix de l'opération
 	ori $a0, $zero, 3	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
 	or $t2, $zero, $v0	# $t2 contient l'opération à faire
 	
+	#On se dirige vers l'étiquette correspondant au niveau choisit
 	ori $t3, $zero, 1
 	ori $t4, $zero, 2
 	ori $t5, $zero, 3
 	beq $t0, $t3, facile_Niveau
 	beq $t0, $t4, moyen_Niveau
 	beq $t0, $t5, difficile_Niveau
-	
+
+#Si le niveau choisit est facile	
 facile_Niveau:
+	#On se dirige vers l'étiquette correspondant au niveau choisit
 	beq $t2, $zero, addition_facile
 	beq $t2, $t3, soustraction_facile
 	beq $t2, $t4, multiplication_facile
 addition_facile:
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 21	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t2, $zero, $v0	# $t2 contient le premier random
-	
-	#Appel a la fonction random
+	or $t2, $zero, $v0	# $t2 contient le premier nombre	
+	#Appel a la fonction random pour le deuxieme nombre
 	ori $a0, $zero, 21	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t3, $zero, $v0	# $t3 contient le deuxième random
-	
+	or $t3, $zero, $v0	# $t3 contient le deuxième nombre
 	#Appel à la fonction d'addition
 	or $a0, $zero, $t2	#OUV
 	or $a1, $zero, $t3	#
@@ -127,8 +119,8 @@ addition_facile:
 	addu $sp, $sp, 32	#
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
 	
-	
 	addi $t6, $t6, 1
+	#On va afficher le calcul à faire
 	# printf("calculer %d + %d", $t1, $t2)
 	la $a0, calc
 	ori $v0, $zero, 4
@@ -183,18 +175,16 @@ Bad_addition_facile:
 	j suite_Niveau
 	
 soustraction_facile:
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 11	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t2, $zero, $v0	# $t2 contient le premier random
-	
-	#Appel a la fonction random
+	or $t2, $zero, $v0	# $t2 contient le premier nombre	
+	#Appel a la fonction random pour le deuxieme nombre
 	ori $a0, $zero, 11	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t3, $zero, $v0	# $t3 contient le deuxième random
-	
+	or $t3, $zero, $v0	# $t3 contient le deuxième nombre	
 	#Appel à la fonction de soustraction
 	or $a0, $zero, $t2	#OUV
 	or $a1, $zero, $t3	#
@@ -202,7 +192,9 @@ soustraction_facile:
 	lw $fp, 4($sp)		#FIN
 	addu $sp, $sp, 32	#
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
+	
 	addi $t6, $t6, 1
+	#On va afficher le calcul à faire
 	# printf("calculer %d - %d", $t1, $t2)
 	la $a0, calc
 	ori $v0, $zero, 4
@@ -257,19 +249,17 @@ Bad_soustraction_facile:
 	j suite_Niveau	
 	
 multiplication_facile:
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 3	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t2, $zero, $v0	# $t2 contient le premier random
-	
-	#Appel a la fonction random
+	or $t2, $zero, $v0	# $t2 contient le premier nombre	
+	#Appel a la fonction random pour le deuxieme nombre
 	ori $a0, $zero, 3	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t3, $zero, $v0	# $t3 contient le deuxième random
-	
-	#Appel à la fonction de soustraction
+	or $t3, $zero, $v0	# $t3 contient le deuxième nombre	
+	#Appel à la fonction de multiplication
 	or $a0, $zero, $t2	#OUV
 	or $a1, $zero, $t3	#
 	jal Fctmultiplication
@@ -278,6 +268,7 @@ multiplication_facile:
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
 	
 	addi $t6, $t6, 1
+	#On va afficher le calcul à faire
 	# printf("calculer %d + %d", $t1, $t2)
 	la $a0, calc
 	ori $v0, $zero, 4
@@ -331,25 +322,23 @@ Bad_multiplication_facile:
 	syscall
 	j suite_Niveau
 
-
+#Si le niveau choisit est moyen
 moyen_Niveau:
 	beq $t2, $zero, addition_moyen
 	beq $t2, $t3, soustraction_moyen
 	beq $t2, $t4, multiplication_moyen
 	
 addition_moyen:
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 101	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t2, $zero, $v0	# $t2 contient le premier random
-	
-	#Appel a la fonction random
+	or $t2, $zero, $v0	# $t2 contient le premier nombre	
+	#Appel a la fonction random pour le deuxieme nombre
 	ori $a0, $zero, 101	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t3, $zero, $v0	# $t3 contient le deuxième random
-	
+	or $t3, $zero, $v0	# $t3 contient le deuxième nombre	
 	#Appel à la fonction d'addition
 	or $a0, $zero, $t2	#OUV
 	or $a1, $zero, $t3	#
@@ -360,6 +349,7 @@ addition_moyen:
 	
 	
 	addi $t6, $t6, 1
+	#On va afficher le calcul à faire
 	# printf("calculer %d + %d", $t1, $t2)
 	la $a0, calc
 	ori $v0, $zero, 4
@@ -414,18 +404,16 @@ Bad_addition_moyen:
 	j suite_Niveau
 	
 soustraction_moyen:
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 101	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t2, $zero, $v0	# $t2 contient le premier random
-	
-	#Appel a la fonction random
+	or $t2, $zero, $v0	# $t2 contient le premier nombre
+	#Appel a la fonction random pour le deuxieme nombre
 	ori $a0, $zero, 101	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t3, $zero, $v0	# $t3 contient le deuxième random
-	
+	or $t3, $zero, $v0	# $t3 contient le deuxième nombre	
 	#Appel à la fonction de soustraction
 	or $a0, $zero, $t2	#OUV
 	or $a1, $zero, $t3	#
@@ -433,7 +421,9 @@ soustraction_moyen:
 	lw $fp, 4($sp)		#FIN
 	addu $sp, $sp, 32	#
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
+	
 	addi $t6, $t6, 1
+	#On va afficher le calcul à faire
 	# printf("calculer %d - %d", $t1, $t2)
 	la $a0, calc
 	ori $v0, $zero, 4
@@ -488,19 +478,17 @@ Bad_soustraction_moyen:
 	j suite_Niveau
 	
 multiplication_moyen:
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 11	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t2, $zero, $v0	# $t2 contient le premier random
-	
-	#Appel a la fonction random
+	or $t2, $zero, $v0	# $t2 contient le premier nombre
+	#Appel a la fonction random pour le deuxieme nombre
 	ori $a0, $zero, 11	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
-	or $t3, $zero, $v0	# $t3 contient le deuxième random
-	
-	#Appel à la fonction de soustraction
+	or $t3, $zero, $v0	# $t3 contient le deuxième nombre	
+	#Appel à la fonction de multiplication
 	or $a0, $zero, $t2	#OUV
 	or $a1, $zero, $t3	#
 	jal Fctmultiplication
@@ -509,6 +497,7 @@ multiplication_moyen:
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
 	
 	addi $t6, $t6, 1
+	#On va afficher le calcul à faire
 	# printf("calculer %d + %d", $t1, $t2)
 	la $a0, calc
 	ori $v0, $zero, 4
@@ -564,12 +553,13 @@ Bad_multiplication_moyen:
 	j suite_Niveau
 
 
+#Pour le niveau difficile, on affiche une suite d'opération un par un à réaliser, le joueur à 5 secondes avant que la prochaine opération apparaisse
 difficile_Niveau:
 	#affiche "calculer "
 	la $a0, calc
 	ori $v0, $zero, 4
 	syscall
-	#Appel a la fonction random
+	#Appel a la fonction random pour le premier nombre
 	ori $a0, $zero, 6	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
@@ -578,10 +568,10 @@ difficile_Niveau:
 	or $a0, $zero, $t4
 	ori $v0, $zero, 1
 	syscall
-	
-#random pour connaitre le nombre d'opérande
-while_nb_operande: 		#choix d'un nombre aléatoire entre 5 et 10
-	#Appel a la fonction random
+
+#choix d'un nombre aléatoire entre 5 et 10	
+while_nb_operande: 	
+	#Appel a la fonction random pour connaitre le nombre d'opération
 	ori $a0, $zero, 11	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
@@ -591,14 +581,16 @@ while_nb_operande: 		#choix d'un nombre aléatoire entre 5 et 10
 	slt $t3, $s1, $t5
 	bne $t3, $zero, while_nb_operande
 	
+#On fait autant de boucle que d'opération à faire
 for_difficile:
-	beq $s0, $s1, suite_operation
-	#Appel a la fonction random
+	beq $s0, $s1, suite_operation_difficile	#$s0 est le compteur de la boucle
+	#Appel a la fonction random pour avoir une opération aléatoire
 	ori $a0, $zero, 3	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
 	or $t2, $zero, $v0	# $t2 contient l'opération
 	
+	#on se dirige vers l'étiquette correspondant à l'opération
 	ori $t5, $zero, 1
 	ori $t3, $zero, 2
 	beq $t2, $zero, affichage_addition_difficile
@@ -610,19 +602,21 @@ affichage_addition_difficile:
 	la $a0, plus
 	ori $v0, $zero, 4
 	syscall
-	j suite_affichage
+	j suite_affichage_difficile
 affichage_soustraction_difficile:
+	# printf(" - ")
 	la $a0, moins
 	ori $v0, $zero, 4
 	syscall
-	j suite_affichage
+	j suite_affichage_difficile
 affichage_multiplication_difficile:
+	# printf(" x ")
 	la $a0, fois
 	ori $v0, $zero, 4
 	syscall
 
-suite_affichage:	
-	#Appel a la fonction random
+suite_affichage_difficile:	
+	#Appel a la fonction random pour avoir un nombre aléatoire
 	ori $a0, $zero, 6	# plafond du random
 	jal FctRandom
 	lw $fp, 4($sp)		#FIN
@@ -636,24 +630,19 @@ suite_affichage:
 	ori $v0, $zero, 4
 	syscall 
 	syscall
-	
+	#on attend 5 secondes
 	ori $v0, $zero, 32
 	ori $a0, $zero, 5000
-	syscall
-	#"pressez enter pour voir la suite"
-	#la $a0, press_enter
-	#ori $v0, $zero, 4
-	#syscall
-	#ori $v0, $zero, 8
-	#syscall
-	
-	#On efface le terminal
+	syscall	
+	#On "efface" le terminal
 	la $a0, clear
 	ori $v0, $zero, 4
 	syscall
+	#On attend 0.1s afin qu'on puisse voir qu'il y a eu une nouvelle opération qui est apparut
 	ori $v0, $zero, 32
 	ori $a0, $zero, 100
 	syscall
+	
 	beq $t2, $zero, addition_difficile
 	beq $t2, $t5, soustraction_difficile
 	beq $t2, $t3, multiplication_difficile
@@ -665,7 +654,7 @@ addition_difficile:
 	lw $fp, 4($sp)		#FIN
 	addu $sp, $sp, 32	#
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
-	j suite_operation_boucle
+	j suite_difficile_boucle
 soustraction_difficile:
 	#Appel à la fonction de soustraction
 	or $a0, $zero, $t4	#OUV
@@ -674,7 +663,7 @@ soustraction_difficile:
 	lw $fp, 4($sp)		#FIN
 	addu $sp, $sp, 32	#
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4	
-	j suite_operation_boucle
+	j suite_difficile_boucle
 multiplication_difficile:
 	#Appel à la fonction de multiplication
 	or $a0, $zero, $t4	#OUV
@@ -683,15 +672,16 @@ multiplication_difficile:
 	lw $fp, 4($sp)		#FIN
 	addu $sp, $sp, 32	#
 	or $t4, $zero, $v0	# On enregistre la valeur de l'addition dans $t4
-	
-suite_operation_boucle:
+
+#on incrémente le compteur et on recommence la boucle
+suite_difficile_boucle:
 	addi $s0, $s0, 1
 	j for_difficile
 	
-suite_operation:
+suite_operation_difficile:
 	#on remet le compteur $s0 à 0
 	ori $s0, $zero, 0
-	#affiche un retour à la ligne
+	#On "efface" le terminal
 	la $a0, clear
 	ori $v0, $zero, 4
 	syscall 
@@ -701,13 +691,10 @@ suite_operation:
 	la $a0, tapez_resultat
 	ori $v0, $zero, 4
 	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall 
 	#on récupère le résultat de l'utilisateur
 	ori $v0, $zero, 5
 	syscall
+	#On vérifie si il est bon
 	or $t5, $zero, $v0
 	beq $t5, $t4, Good_difficile
 	j Bad_difficile
@@ -761,20 +748,17 @@ suite_Niveau:
 
 	addi $a2, $a2, 1
 	bne $a2, $t1, for_Niveau
-	or $v0, $zero, $t6
-	or $v1, $zero, $t7
 
 	
 suite:	
-	#Appel de la fonction Choix du niveau	
-
+	#Appel de la fonction Choix du niveau
 	jal FctChoixDuNiveau
-
 	lw $fp, 60($sp)		#FIN
 	lw $t0, 0($sp)		#
 	or $t0, $zero, $v0		# $t0 contient le choix de l'utilisateur
 	
 	ori $t5, $zero, 4
+	#Si le joueur a encore choisit un niveau, on recommence à donner les ccalculs à faire
 	bne $t0, $t5, while
 
 fin:	
@@ -804,10 +788,10 @@ fin:
 
 
 Fctaddition:
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
+	addiu $sp, $sp, -8	#Prologue
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#
 	
 	add $v0, $a0, $a1
 	
@@ -818,10 +802,10 @@ Fctaddition:
 	
 	
 Fctsoustraction:
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
+	addiu $sp, $sp, -8	#Prologue
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#
 	
 	sub $v0, $a0, $a1
 	
@@ -832,13 +816,11 @@ Fctsoustraction:
 
 		
 Fctmultiplication:
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
-	
-	mult $a0, $a1
-	
+	addiu $sp, $sp, -8	#Proloogue
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#	
+	mult $a0, $a1	
 	mflo  $v0
 	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
 	lw $fp, 4($sp)		# restitution de $sp
@@ -875,10 +857,13 @@ FctChoixDuNiveau:
 	ori $t3, $zero, 3
 	ori $t4, $zero, 4
 mauvais_choix:
+ 	#On fait le branchement en fonction du choix fait
 	beq $t0, $t1, choix_1
 	beq $t0, $t2, choix_2
 	beq $t0, $t3, choix_3
 	beq $t0, $t4, choix_4
+	
+	#Si le choix fait est invalide (différent de 1,2,3,4) alors l'utilisateur refait un choix
 	la $a0, mess_mauvais_choix
 	ori $v0, $zero, 4
 	syscall
@@ -897,33 +882,17 @@ mauvais_choix:
 choix_1:	
 	la $a0, easy
 	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
 	j suite_choix
 choix_2:	
 	la $a0, moyen
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
 	syscall
 	j suite_choix
 choix_3:
 	la $a0, hard
 	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
-	syscall
 	j suite_choix
 choix_4:
 	la $a0, sortie
-	syscall
-	#affiche un retour à la ligne
-	la $a0, rt
-	ori $v0, $zero, 4
 	syscall
 	j suite_choix
 
@@ -935,12 +904,12 @@ suite_choix:
 	jr $ra	
 
 
-FctRandom: #fonction qui génère des nombres aléatoires
-
+FctRandom: 
+#fonction qui génère des nombres aléatoires
 	addiu $sp, $sp, -8  	#Prologue 
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#
 
 	li $v0, 42 		# 42 est l'appel système pour générer un random int
 	or $a1, $zero, $a0		# $a1 stocke la limite superieure
@@ -950,32 +919,34 @@ FctRandom: #fonction qui génère des nombres aléatoires
 	lw $ra, 0($sp)		#Epilogue : restitution fr $ra
 	lw $fp, 4($sp)		# restitution de $sp
 	addiu $sp, $sp, 8	# déplilement
-	jr $ra	
-	
-
-		
+	jr $ra			
 
 	
 			
 Fct_calcule_score:
+#Fonction qui calcule le score final sous forme d'un pourcentage
 	# $a0 contient le nombre de calcul
 	# $a1 contient le nombre de calcul correcte
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
+	addiu $sp, $sp, -8	#Prologue
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#
 	
+	#On va convertir les "word" en "single precision" pour avoir pouvoir faire une division dont le résultat est inférieur à 1 et avoir un résultat différent de 0
 	or $t0, $zero, $a0
 	mtc1  $t0, $f12
 	cvt.s.w $f12, $f12
 	or $t1, $zero, $a1
 	mtc1 $t1, $f13
 	cvt.s.w $f13, $f13
+	#On divise le nombre de calcul bon par le nombre de calcul
 	div.s $f11, $f13, $f12
+	#Et on multiplie par 100 pour avoir un pourcentage
 	ori $t0, $zero, 100
 	mtc1  $t0, $f13
 	cvt.s.w $f13, $f13
 	mul.s $f12, $f11, $f13
+	#On reconvertit le pourcentage en "word" pour pouvoir l'afficher
 	cvt.w.s $f12, $f12
 	mfc1 $t0, $f12
 	or $a0, $zero, $t0
@@ -1002,39 +973,36 @@ Fct_calcule_score:
 
 
 Fct_affiche_score:
+#Fonction qui va afficher un message en fonction du résultat
 	# $a1 contient le score final
-	addiu $sp, $sp, -8
-	sw $ra, 0($sp)	
-	sw $fp, 4($sp)
-	addiu $fp, $sp, 8
+	addiu $sp, $sp, -8	#Prologue
+	sw $ra, 0($sp)		#
+	sw $fp, 4($sp)		#
+	addiu $fp, $sp, 8	#
 
 	ori $t1, $zero, 99
+	#Si le score est supérieur à 99%
 	slt $t0, $t1, $a0
 	bne $t0, $zero, affiche_score_com_1
 	ori $t2, $zero, 75
-	slt $t0, $a0, $t1
-	bne $t0, $zero, affiche_score_com_2_test
-test_1:	
-	ori $t1, $zero, 50
-	slt $t0, $a0, $t2
-	bne $t0, $zero, affiche_score_com_3_test
-test_2:
-	ori $t2, $zero, 25
-	slt $t0, $a0, $t1
-	bne $t0, $zero, affiche_score_com_4_test
 
-affiche_score_com_2_test:	# Pour mettre une deuxième condition
+	#Et si le score est supérieur à 75%
 	slt $t0, $t2, $a0
 	bne $t0, $zero, affiche_score_com_2
-	j test_1
-affiche_score_com_3_test:
+
+	#Si le score est supérieur à 50%
+	ori $t1, $zero, 50
 	slt $t0, $t1, $a0
 	bne $t0, $zero, affiche_score_com_3
-	j test_2
-affiche_score_com_4_test:
+
+	#Si le score est supérieur à 25%
+	ori $t2, $zero, 25
 	slt $t0, $t2, $a0
 	bne $t0, $zero, affiche_score_com_4
+	
+	#Sinon (score inférieur à 25%)
 	j affiche_score_com_5
+	
 affiche_score_com_1:
 	la $a0, com_1
 	ori $v0, $zero, 4
